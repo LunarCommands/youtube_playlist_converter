@@ -36,13 +36,18 @@ def run():
     playlist = input("Paste a link to your playlist: ")
     p = Playlist(playlist)
     print(f"Downloading: {p.title}")
+
     for file in p.videos:
-        StreamQuery.filter(file.streams, type="audio", adaptive=True).first().download(folder)
-        print(file.title)
-        bad_file = get_rid_of_symbols(file.title) + bad_extension
-        good_file = get_rid_of_symbols(file.title) + good_extension
-        os.chdir(folder)
-        os.rename(bad_file, good_file)
+        try:
+            StreamQuery.filter(file.streams, type="audio", adaptive=True).first().download(folder)
+            print(file.title)
+            bad_file = get_rid_of_symbols(file.title) + bad_extension
+            good_file = get_rid_of_symbols(file.title) + good_extension
+            os.chdir(folder)
+            os.rename(bad_file, good_file)
+        except FileExistsError:
+            print("File already exists.\n")
+            os.remove(folder + "\\" + get_rid_of_symbols(file.title) + bad_extension)
 
 
 if __name__ == "__main__":
